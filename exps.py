@@ -35,16 +35,18 @@ def calc_sigmoid(z):
 
 def calc_cost(y, a):
     sum = 0
-    assert len(y) == len(a)
-    for i in range(len(y)):
-        sum += y[i]*math.log(a[i]) + (1-y[i])*math.log(1-a[i])
-    return -sum/len(y)
+    for i in range(len(a)):
+        sum += y*math.log(a[i]) + (1-y)*math.log(1-a[i])
+        #print '%s - %s' % (str(y), str(math.log(a[i])))
+    return -sum/len(a)
 
 
 w = init_weights(784)
 
 b = init_b()
 x = training_img[2]
+y = training_vals[2]
 
 predictions = calc_sigmoid(calc_z(w, x, b))
-cost = calc_cost()
+cost = calc_cost(y, predictions)
+print cost
