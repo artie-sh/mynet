@@ -5,6 +5,8 @@ import random
 import math
 from datetime import datetime as dt
 from datetime import timedelta
+import params
+
 
 training_data, validation_data, test_data = load_data()
 training_img = np.asarray(training_data[0])
@@ -23,7 +25,7 @@ def init_weights(number):
 
 
 def init_b():
-    return random.random()
+    return 0
 
 
 def calc_z(W, X, b):
@@ -116,10 +118,10 @@ def track_end(start):
 
 start = track_start()
 
-target_number = 5
-trainig_sets = 300
-num_iterations = 100
-learning_rate = 0.1
+target_number = params.target_number
+trainig_sets = params.trainig_sets
+num_iterations = params.num_iterations
+learning_rate = params.learning_rate
 
 W = init_weights(784)
 b = 0
