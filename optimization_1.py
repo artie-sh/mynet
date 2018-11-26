@@ -13,32 +13,26 @@ training_vals = np.asarray(training_data[1])
 
 
 def init_weights(number):
-    return [0 for i in range(number)]
+    return np.zeros((number, 1))
 
 def init_b():
     return 0
 
 
 def calc_z(W, X, b):
-    rng = len(W)
-    sum = 0
-    assert rng == len(X)
-    for i in range(rng):
-        sum += W[i] * X[i]
-    return sum + b
+    res = np.dot(W.T, X.reshape(784, len(X))) + b
+    return res
 
 
 def calc_sigmoid(z):
-    return 1/(1+math.exp(-z))
+    sigmoid = 1/(1+np.exp(-z))
+    return sigmoid
 
 
 def calc_cost(Y, A):
-    rng = len(A)
-    sum = 0
-    assert len(Y) == rng
-    for i in range(rng):
-       sum += Y[i] * math.log(A[i]) + (1 - Y[i]) * math.log(1 - A[i])
-    return -sum/rng
+    A = A.T
+    sum = np.dot(Y, np.log(A)) + np.dot((1 - Y), np.log(1 - A))
+    return -sum[0]/len(Y)
 
 
 
@@ -50,29 +44,18 @@ def normalize_val(val, target_val):
 
 
 def calc_dw(X, A, Y):
-    rng = len(A)
-    lng = len(X[0])
-    dws = []
-    A_Y = [A[i] - Y[i] for i in range(rng)]
-
-    for i in range(lng):
-        sum = 0
-        for j in range(rng):
-            sum += X[j][i] * A_Y[j]
-        dws.append(sum/lng)
-    return dws
+    result = np.dot((A - Y), X)
+    print result.shape
+    return result
 
 
 def calc_db(Y, A):
-    rng = len(Y)
-    sum = 0
-    for i in range(rng):
-        sum += A[i] - Y[i]
-    return sum/rng
+    return np.sum(A - Y) / len(Y)
 
 
 def propagate(W, b, X, Y):
-    A = [calc_sigmoid(calc_z(W, X[i], b)) for i in range(len(X))]
+    z = calc_z(W, X, b)
+    A = calc_sigmoid(z)
     cost = calc_cost(Y, A)
     dw = calc_dw(X, A, Y)
     db = calc_db(Y, A)
@@ -82,8 +65,7 @@ def propagate(W, b, X, Y):
 def optimize(W, b, X, Y, learning_rate, num_iterations):
     for i in range(num_iterations):
         dw, db, cost = propagate(W, b, X, Y)
-        for j in range(len(W)):
-            W[j] -= learning_rate * dw[j]
+        W -= np.dot(dw.T, learning_rate)
         b -= learning_rate * db
         if i % 10 == 0:
             print "%s: cost %s" % (str(i), str(cost))
@@ -119,35 +101,38 @@ learning_rate = params.learning_rate
 
 W = init_weights(784)
 b = 0
-X = [training_img[i] for i in range(trainig_sets)]
-Y = [normalize_val(training_vals[i], target_number) for i in range(trainig_sets)]
+X = np.array([training_img[i] for i in range(trainig_sets)])
+Y = np.array([normalize_val(training_vals[i], target_number) for i in range(trainig_sets)])
 
 W, b = optimize(W, b, X, Y, learning_rate, num_iterations)
 
+
 true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
 
-for i in range(400, 500):
-    result = str(predict(W, b, training_img[i]))
-    fact = str(training_vals[i])
+result = predict(W, b, np.array([training_img[i] for i in range(400, 500)]))[0]
+fact = [training_vals[i] for i in range(400, 500)]
 
-    if result >= 0.5 and fact == target_number:
-        print "%s recognized %s - %s" % (str(i), result, fact)
-        true_rec += 1
-    elif result >= 0.5 and fact != target_number:
-        print "%s false rec %s - %s" % (str(i), result, fact)
-        false_rec += 1
-    elif result < 0.5 and fact != target_number:
-        print "%s true unrec %s - %s" % (str(i), result, fact)
-        true_unrec += 1
-    elif result < 0.5 and fact == target_number:
-        print "%s unrecognized %s - %s" % (str(i), result, fact)
-        false_unrec += 1
+# for i in range(len(result)):
+#     print "result: %s, fact: %s" % (str(result[i]), str(fact[i]))
 
-
-print "true_rec", true_rec
-print "false_rec", false_rec
-print "true_unrec", true_unrec
-print "false_unrec", false_unrec
+#     if result >= 0.5 and fact == target_number:
+#         print "%s recognized %s - %s" % (str(i), result, fact)
+#         true_rec += 1
+#     elif result >= 0.5 and fact != target_number:
+#         print "%s false rec %s - %s" % (str(i), result, fact)
+#         false_rec += 1
+#     elif result < 0.5 and fact != target_number:
+#         print "%s true unrec %s - %s" % (str(i), result, fact)
+#         true_unrec += 1
+#     elif result < 0.5 and fact == target_number:
+#         print "%s unrecognized %s - %s" % (str(i), result, fact)
+#         false_unrec += 1
+#
+#
+# print "true_rec", true_rec
+# print "false_rec", false_rec
+# print "true_unrec", true_unrec
+# print "false_unrec", false_unrec
 
 
 track_end(start)
