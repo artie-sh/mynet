@@ -1,7 +1,7 @@
 
 
 target_number = 0
-trainig_sets = 300
+trainig_sets = 100
 num_iterations = 100
 learning_rate = 0.1
 
