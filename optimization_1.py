@@ -21,7 +21,7 @@ def save_as_png(dataset, number):
 
 
 def init_weights(number):
-    return np.array([0 for i in range(number)])
+    return np.array([0. for i in range(number)])
 
 
 def init_b():
@@ -50,22 +50,13 @@ def normalize_val(val, target_val):
 
 
 def calc_dw(X, A, Y):
-    dws = []
-    A_Y = [A[i] - Y[i] for i in range(len(A))]
-
-    for i in range(len(X[0])):
-        sum = 0
-        for j in range(len(A_Y)):
-            sum += X[j][i] * A_Y[j]
-        dws.append(sum/len(X))
-    return dws
+    X = X.reshape(784, A.shape[0])
+    return np.sum((A-Y) * X, 1)/A.shape[0]
 
 
 def calc_db(Y, A):
-    sum = 0
-    for i in range(len(Y)):
-        sum += A[i] - Y[i]
-    return sum/len(Y)
+    res = np.sum(A - Y) / A.shape[0]
+    return res
 
 
 def propagate(W, b, X, Y):
@@ -80,9 +71,8 @@ def propagate(W, b, X, Y):
 def optimize(W, b, X, Y, learning_rate, num_iterations):
     for i in range(num_iterations):
         dw, db, cost = propagate(W, b, X, Y)
-        for j in range(len(W)):
-            W[j] -= learning_rate * dw[j]
-        b -= learning_rate * db
+        W -= dw * learning_rate
+        b -= db * learning_rate
         if i % 10 == 0:
             print "%s: cost %s" % (str(i), str(cost))
             #print "db st", db
@@ -122,30 +112,30 @@ Y = np.array([normalize_val(training_vals[i], target_number) for i in range(trai
 
 W, b = optimize(W, b, X, Y, learning_rate, num_iterations)
 
-# true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
-#
-# for i in range(400, 500):
-#     result = predict(W, b, training_img[i])
-#     fact = training_vals[i]
-#
-#     if result >= 0.5 and fact == target_number:
-#         print "%s recognized %s - %s" % (str(i), str(result), str(fact))
-#         true_rec += 1
-#     elif result >= 0.5 and fact != target_number:
-#         print "%s false rec %s - %s" % (str(i), str(result), str(fact))
-#         false_rec += 1
-#     elif result < 0.5 and fact != target_number:
-#         print "%s true unrec %s - %s" % (str(i), str(result), str(fact))
-#         true_unrec += 1
-#     elif result < 0.5 and fact == target_number:
-#         print "%s unrecognized %s - %s" % (str(i), str(result), str(fact))
-#         false_unrec += 1
-#
-#
-# print "true_rec", true_rec
-# print "false_rec", false_rec
-# print "true_unrec", true_unrec
-# print "false_unrec", false_unrec
+true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
+
+result = predict(W, b, [training_img[i] for i in range(400, 500)])
+fact = [training_vals[i] for i in range(400, 500)]
+
+for i in range(len(result)):
+    if result[i] >= 0.5 and fact[i] == target_number:
+        print "%s recognized %s - %s" % (str(i), str(result), str(fact))
+        true_rec += 1
+    elif result[i] >= 0.5 and fact[i] != target_number:
+        print "%s false rec %s - %s" % (str(i), str(result), str(fact))
+        false_rec += 1
+    elif result[i] < 0.5 and fact[i] != target_number:
+        print "%s true unrec %s - %s" % (str(i), str(result), str(fact))
+        true_unrec += 1
+    elif result[i] < 0.5 and fact[i] == target_number:
+        print "%s unrecognized %s - %s" % (str(i), str(result), str(fact))
+        false_unrec += 1
+
+
+print "true_rec", true_rec
+print "false_rec", false_rec
+print "true_unrec", true_unrec
+print "false_unrec", false_unrec
 
 
 track_end(start)

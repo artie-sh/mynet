@@ -19,7 +19,10 @@ x = np.array([[10, 20, 30], [100, 200, 300]])
 b = 0
 
 print w
+print w.shape
+
 print x
+print x.shape
 
 print calc_z(w, x, b)
 #print calc_z_old(w, x, b)
