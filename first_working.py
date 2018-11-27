@@ -94,6 +94,7 @@ def optimize(W, b, X, Y, learning_rate, num_iterations):
         b -= learning_rate * db
         if i % 10 == 0:
             print "%s: cost %s" % (str(i), str(cost))
+            #print "db st", db
     return W, b
 
 
@@ -130,30 +131,32 @@ Y = [normalize_val(training_vals[i], target_number) for i in range(trainig_sets)
 
 W, b = optimize(W, b, X, Y, learning_rate, num_iterations)
 
-true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
+print b
 
-for i in range(400, 500):
-    result = predict(W, b, training_img[i])
-    fact = training_vals[i]
-
-    if result >= 0.5 and fact == target_number:
-        print "%s recognized %s - %s" % (str(i), str(result), str(fact))
-        true_rec += 1
-    elif result >= 0.5 and fact != target_number:
-        print "%s false rec %s - %s" % (str(i), str(result), str(fact))
-        false_rec += 1
-    elif result < 0.5 and fact != target_number:
-        print "%s true unrec %s - %s" % (str(i), str(result), str(fact))
-        true_unrec += 1
-    elif result < 0.5 and fact == target_number:
-        print "%s unrecognized %s - %s" % (str(i), str(result), str(fact))
-        false_unrec += 1
-
-
-print "true_rec", true_rec
-print "false_rec", false_rec
-print "true_unrec", true_unrec
-print "false_unrec", false_unrec
+# true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
+#
+# for i in range(400, 500):
+#     result = predict(W, b, training_img[i])
+#     fact = training_vals[i]
+#
+#     if result >= 0.5 and fact == target_number:
+#         print "%s recognized %s - %s" % (str(i), str(result), str(fact))
+#         true_rec += 1
+#     elif result >= 0.5 and fact != target_number:
+#         print "%s false rec %s - %s" % (str(i), str(result), str(fact))
+#         false_rec += 1
+#     elif result < 0.5 and fact != target_number:
+#         print "%s true unrec %s - %s" % (str(i), str(result), str(fact))
+#         true_unrec += 1
+#     elif result < 0.5 and fact == target_number:
+#         print "%s unrecognized %s - %s" % (str(i), str(result), str(fact))
+#         false_unrec += 1
+#
+#
+# print "true_rec", true_rec
+# print "false_rec", false_rec
+# print "true_unrec", true_unrec
+# print "false_unrec", false_unrec
 
 
 track_end(start)
