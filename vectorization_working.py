@@ -17,8 +17,6 @@ def save_as_png(dataset, number):
     for i in range(number):
         img.imsave(folder + '%s__%s.png' % (str(i), str(training_vals[i])), training_img[i].reshape(28,28))
 
-#save_as_png(training_img, 1000)
-
 
 def init_weights(number):
     return np.array([0. for i in range(number)])
@@ -27,19 +25,17 @@ def init_weights(number):
 def init_b():
     return 0
 
+
 def calc_z(W, X, b):
-    res = np.sum(W * X, 1) + b
-    return res
+    return np.sum(W * X, 1) + b
 
 
 def calc_sigmoid(z):
-    res = 1/(1+np.exp(-z))
-    return res
+    return 1/(1+np.exp(-z))
 
 
 def calc_cost(Y, A):
-    res = np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))
-    return -res/A.shape[0]
+    return -np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))/A.shape[0]
 
 
 def normalize_val(val, target_val):
@@ -49,18 +45,12 @@ def normalize_val(val, target_val):
     return result
 
 
-def calc_dw_1(X, A, Y):
-    X = X.reshape(784, A.shape[0])
-    return np.sum((A-Y) * X, 1)/A.shape[0]
-
-
 def calc_dw(X, A, Y):
-    res = np.dot(A - Y, X) / len(A)
-    return res
+    return np.dot(A - Y, X) / len(A)
+
 
 def calc_db(Y, A):
-    res = np.sum(A - Y) / A.shape[0]
-    return res
+    return np.sum(A - Y) / A.shape[0]
 
 
 def propagate(W, b, X, Y):
@@ -81,8 +71,8 @@ def optimize(W, b, X, Y, learning_rate, num_iterations):
     return W, b
 
 
-def predict(W, b, x):
-    return calc_sigmoid(calc_z(W, x, b))
+def predict(W, X, b):
+    return calc_sigmoid(calc_z(W, X, b))
 
 
 def track_start():
@@ -116,7 +106,7 @@ W, b = optimize(W, b, X, Y, learning_rate, num_iterations)
 
 true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
 
-result = predict(W, b, [training_img[i] for i in range(400, 500)])
+result = predict(W, [training_img[i] for i in range(400, 500)], b)
 fact = [training_vals[i] for i in range(400, 500)]
 
 for i in range(len(result)):
