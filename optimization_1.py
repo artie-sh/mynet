@@ -49,10 +49,14 @@ def normalize_val(val, target_val):
     return result
 
 
-def calc_dw(X, A, Y):
+def calc_dw_1(X, A, Y):
     X = X.reshape(784, A.shape[0])
     return np.sum((A-Y) * X, 1)/A.shape[0]
 
+
+def calc_dw(X, A, Y):
+    res = np.dot(A - Y, X) / len(A)
+    return res
 
 def calc_db(Y, A):
     res = np.sum(A - Y) / A.shape[0]
@@ -60,7 +64,6 @@ def calc_db(Y, A):
 
 
 def propagate(W, b, X, Y):
-    #A = [calc_sigmoid(calc_z(W, X[i], b)) for i in range(len(X))]
     A = calc_sigmoid(calc_z(W, X, b))
     cost = calc_cost(Y, A)
     dw = calc_dw(X, A, Y)
@@ -75,7 +78,6 @@ def optimize(W, b, X, Y, learning_rate, num_iterations):
         b -= db * learning_rate
         if i % 10 == 0:
             print "%s: cost %s" % (str(i), str(cost))
-            #print "db st", db
     return W, b
 
 
@@ -119,16 +121,16 @@ fact = [training_vals[i] for i in range(400, 500)]
 
 for i in range(len(result)):
     if result[i] >= 0.5 and fact[i] == target_number:
-        print "%s recognized %s - %s" % (str(i), str(result), str(fact))
+        print "%s recognized %s - %s" % (str(i), str(result[i]), str(fact[i]))
         true_rec += 1
     elif result[i] >= 0.5 and fact[i] != target_number:
-        print "%s false rec %s - %s" % (str(i), str(result), str(fact))
+        print "%s false rec %s - %s" % (str(i), str(result[i]), str(fact[i]))
         false_rec += 1
     elif result[i] < 0.5 and fact[i] != target_number:
-        print "%s true unrec %s - %s" % (str(i), str(result), str(fact))
+        print "%s true unrec %s - %s" % (str(i), str(result[i]), str(fact[i]))
         true_unrec += 1
     elif result[i] < 0.5 and fact[i] == target_number:
-        print "%s unrecognized %s - %s" % (str(i), str(result), str(fact))
+        print "%s unrecognized %s - %s" % (str(i), str(result[i]), str(fact[i]))
         false_unrec += 1
 
 
