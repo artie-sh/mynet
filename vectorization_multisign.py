@@ -6,6 +6,7 @@ import math
 from datetime import datetime as dt
 from datetime import timedelta
 import params
+from matplotlib import cm
 
 
 training_data, validation_data, test_data = load_data()
@@ -16,6 +17,15 @@ def save_as_png(dataset, number):
     folder = './images/'
     for i in range(number):
         img.imsave(folder + '%s__%s.png' % (str(i), str(training_vals[i])), training_img[i].reshape(28,28))
+
+
+def save_idealview(number, W):
+    for i in range(len(W)):
+        if W[i] < 0.01:
+            W[i] = 0
+    W = np.abs(W-1)
+    folder = './idealview/'
+    img.imsave(folder + '%s.png' % str(number), W.reshape(28,28), cmap=cm.gray)
 
 
 def init_weights(number):
@@ -106,8 +116,8 @@ for i in range(10):
     print "running optimization on %s" % str(i)
     W[i], b[i] = optimize(W[i], b[i], X, Y[i], learning_rate, num_iterations)
 
-result = predict(W, [training_img[i] for i in range(400, 500)], b)
-fact = [training_vals[i] for i in range(400, 500)]
+result = predict(W, [training_img[i] for i in range(10000, 10100)], b)
+fact = [training_vals[i] for i in range(10000, 10100)]
 
 rec, unrec = 0, 0
 
@@ -122,6 +132,9 @@ for i in range(len(result)):
 
 
 print "correct: %s" % str(rec)
-print "incorrent: %s" % str(unrec)
+print "incorrect: %s" % str(unrec)
+
+for i in range(len(W)):
+    save_idealview(i, W[i])
 
 track_end(start)
