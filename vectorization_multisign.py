@@ -1,12 +1,4 @@
-import numpy as np
-from mnist_loader import load_data
-import matplotlib.image as img
-import random
-import math
-from datetime import datetime as dt
-from datetime import timedelta
-import params
-from matplotlib import cm
+from  params import *
 
 
 training_data, validation_data, test_data = load_data()
@@ -35,6 +27,12 @@ def init_weights(number):
 def init_b():
     return 0
 
+def normalize_val(val, target_val):
+    result = 0
+    if val == target_val:
+        result = 1
+    return result
+
 
 def calc_z(W, X, b):
     return np.sum(W * X, 1) + b
@@ -46,13 +44,6 @@ def calc_sigmoid(z):
 
 def calc_cost(Y, A):
     return -np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))/A.shape[0]
-
-
-def normalize_val(val, target_val):
-    result = 0
-    if val == target_val:
-        result = 1
-    return result
 
 
 def calc_dw(X, A, Y):
@@ -87,25 +78,7 @@ def predict(W, X, b):
     return [(sigmoids.argmax(0)[i], sigmoids.max(0)[i]) for i in range(sigmoids.shape[1])]
 
 
-def track_start():
-    start = dt.now()
-    print "start time: %s" % str(start.strftime('%Y-%m-%d %H:%M:%S'))
-    return start
-
-
-def track_end(start):
-    end = dt.now()
-    delta = end - start
-    print "end time is %s" % end.strftime('%Y-%m-%d %H:%M:%S')
-    print "total duration: %s" % (str(delta-timedelta(microseconds=delta.microseconds)))
-
-
 start = track_start()
-
-target_number = params.target_number
-trainig_sets = params.trainig_sets
-num_iterations = params.num_iterations
-learning_rate = params.learning_rate
 
 W = np.array([init_weights(784) for i in range(10)])
 b = [0 for i in range(10)]
@@ -116,23 +89,23 @@ for i in range(10):
     print "running optimization on %s" % str(i)
     W[i], b[i] = optimize(W[i], b[i], X, Y[i], learning_rate, num_iterations)
 
-result = predict(W, [training_img[i] for i in range(10000, 10100)], b)
-fact = [training_vals[i] for i in range(10000, 10100)]
-
-rec, unrec = 0, 0
-
-for i in range(len(result)):
-    if result[i][0] == fact[i]:
-        rec += 1
-        append = ''
-    else:
-        unrec += 1
-        append = '!!!'
-    print "res: %s (%s), fact: %s %s" % (str(result[i][0]), str(result[i][1]), str(fact[i]), append)
-
-
-print "correct: %s" % str(rec)
-print "incorrect: %s" % str(unrec)
+# result = predict(W, [training_img[i] for i in range(10000, 10100)], b)
+# fact = [training_vals[i] for i in range(10000, 10100)]
+#
+# rec, unrec = 0, 0
+#
+# for i in range(len(result)):
+#     if result[i][0] == fact[i]:
+#         rec += 1
+#         append = ''
+#     else:
+#         unrec += 1
+#         append = '!!!'
+#     print "res: %s (%s), fact: %s %s" % (str(result[i][0]), str(result[i][1]), str(fact[i]), append)
+#
+#
+# print "correct: %s" % str(rec)
+# print "incorrect: %s" % str(unrec)
 
 for i in range(len(W)):
     save_idealview(i, W[i])
