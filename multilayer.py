@@ -1,12 +1,13 @@
 from  params import *
 
 
-
 def init_hidden_layer(inputs_num, neurons_num):
     return np.random.random((inputs_num, neurons_num)) * 0.01, np.zeros(neurons_num)
 
-def init_outer_layer(inputs_num):
+
+def init_exit_layer(inputs_num):
     return np.zeros((inputs_num, 1)), 0
+
 
 def calc_zs(A, W, b):
     assert A.shape[1] == W.shape[0]
@@ -14,8 +15,10 @@ def calc_zs(A, W, b):
     #print W.shape
     return np.dot(A, W) + b
 
+
 def calc_relus(Z):
     return np.maximum(Z, 0)
+
 
 def calc_sigmoid(z):
     return 1/(1+np.exp(-z))
@@ -24,11 +27,13 @@ def calc_sigmoid(z):
 def calc_cost(Y, A):
     return -np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))/A.shape[0]
 
+
 def normalize_val(val, target_val):
     result = 0
     if val == target_val:
         result = 1
     return result
+
 
 
 training_data, validation_data, test_data = load_data()
@@ -42,14 +47,17 @@ X = np.array([training_img[i] for i in range(trainig_sets)])
 Y = np.array([normalize_val(training_vals[i], target_number) for i in range(trainig_sets)])
 
 W1, b1 = init_hidden_layer(784, 3)
-W2, b2 = init_outer_layer(3)
+Z1 = calc_zs(X, W1, b1)
+relus = calc_relus(Z1)
 
-relus = calc_relus(calc_zs(X, W1, b1))
-#print relus
-
+W2, b2 = init_exit_layer(3)
 A = calc_sigmoid(calc_zs(relus, W2, b2))
-print calc_cost(Y, A)
-#print sigmoid
+cost = calc_cost(Y, A)
+
+
+
+
+
 
 
 
