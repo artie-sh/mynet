@@ -26,10 +26,10 @@ conn = csv.connect_db(csv.db_path)
 cur = conn.cursor()
 data = csv.read_db(cur, 'xrp')
 
-input_size = 4
-trainig_sets = 3
+input_size = 50
+trainig_sets = 10000
 num_iterations = 2000
-learning_rate = 0.5
+learning_rate = 0.3
 
 timerow = get_timerow(data, 'close')
 ma = get_ma(timerow, 3)
@@ -43,12 +43,11 @@ X = np.array([normalized_ma[i:i+input_size] for i in range(trainig_sets)])
 Y = np.array([normalized_ma[i+input_size] for i in range(trainig_sets)])
 
 W, b = optimize(W, b, X, Y, learning_rate, num_iterations)
-print W.shape
 
-vals = np.array(ma[len(ma)-input_size:])
-print vals.shape
+vals = np.array(normalized_ma[len(normalized_ma)-input_size:])
+vals = vals.reshape(input_size, 1)
 
-prediction = predict(W, vals, b)
+prediction = predict(W, vals.T, b)
 
 
 print unwrap_prediction(prediction, minimum, maximum)
