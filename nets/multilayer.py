@@ -1,4 +1,4 @@
-from  params import *
+from params import *
 
 
 def init_hidden_layer(inputs_num, neurons_num):

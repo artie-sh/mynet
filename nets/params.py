@@ -4,11 +4,11 @@ import numpy as np
 from mnist_loader import load_data
 import matplotlib.image as img
 from matplotlib import cm
-
+import math
 
 target_number = 8
 trainig_sets = 100
-num_iterations = 1000
+num_iterations = 20
 learning_rate = 0.1
 
 def track_start():

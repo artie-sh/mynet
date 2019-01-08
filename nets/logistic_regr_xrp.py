@@ -1,5 +1,5 @@
 from database_writer import CsvReader
-from vectorization_working import *
+#from vectorization_working import *
 
 def avg(timerow):
     return sum(timerow)/max(len(timerow), 1)

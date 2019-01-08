@@ -4,7 +4,7 @@ import dateparser
 
 class CsvReader:
 
-    db_path = './prices.sqlite'
+    db_path = '../prices.sqlite'
     csv_path = '../xrp1.csv'
 
     def read_file(self, file_name):
