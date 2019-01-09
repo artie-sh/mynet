@@ -1,10 +1,11 @@
 from params import *
-from unvectorized_network import SimpleNet
+from my_network import NonVectorizedNet
 
 
 start = track_start()
 
-net = SimpleNet()
+net = NonVectorizedNet()
+net.load_data()
 
 W = [net.init_weights(784) for i in range(10)]
 b = [0 for i in range(10)]

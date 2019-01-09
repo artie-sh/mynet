@@ -3,3 +3,4 @@ matplotlib
 datetime
 dateparser
 opencv-python
+pytesseract

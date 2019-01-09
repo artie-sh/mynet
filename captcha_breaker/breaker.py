@@ -1,14 +1,20 @@
 import cv2
-
-myfile = cv2.imread("../captchas/847782.png")
-
-imgray = cv2.cvtColor(myfile, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(imgray,127,255,0)
+import os
+import pytesseract
+from PIL import Image, ImageEnhance, ImageFilter
 
 
-im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+def read_captcha(path, imname):
+    im = Image.open(path + imname).convert('RGB').filter(ImageFilter.MedianFilter())
+    #enhancer = ImageEnhance.Contrast(im)
+    #im = enhancer.enhance(2).convert('1')
+    im.save(path + 'temp.jpg')
+    return pytesseract.image_to_string(Image.open(path + 'temp.jpg'), config='--psm 10 --oem 3 -c tessedit_char_whitelist=0123456789')
 
-for item in contours:
-    print len(item)
+print read_captcha('../captchas/', 'captcha.png')
+
+
+
+
 
 
