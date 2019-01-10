@@ -2,63 +2,61 @@ from database_writer import CsvReader
 from params import *
 from my_network import VectorizedNet
 
-class LogisticRegressionXRP(VectorizedNet):
+class XrpDataHandler():
+
+    data, timerow, ma, normalized_ma, minimum, maximum  = None, None, None, None, None, None
+
+    def __init__(self, tablename, column):
+        csv = CsvReader()
+        conn = csv.connect_db(csv.db_path)
+        cur = conn.cursor()
+        self.data = csv.read_db(cur, tablename)
+        self.timerow = self.get_timerow(column)
 
     def avg(self, timerow):
         return sum(timerow) / max(len(timerow), 1)
 
-    def get_timerow(self, data, rowname='close'):
+    def get_timerow(self, rowname='close'):
         rows = {'open': 1, 'high': 2, 'low': 3, 'close': 4}
         colnum = rows[rowname]
-        return [line[colnum] for line in data]
+        return np.array([line[colnum] for line in self.data])
 
-    def get_ma(self, timerow, periods):
-        return np.array([self.avg(timerow[i:i + periods]) for i in range(len(timerow) - periods)])
+    def get_ma(self, periods):
+        self.ma = np.array([self.avg(self.timerow[i:i + periods]) for i in range(len(self.timerow) - periods)])
+        return self.ma
 
-    def get_normalized_ma(self, timerow, periods):
-        ma = self.get_ma(timerow, periods)
-        return np.array([normalized_ma[i:i+input_size] for i in range(trainig_sets)])
+    def normalize_vals(self, timerow):
+        self.minimum, self.maximum = min(timerow), max(timerow)
+        return (timerow - self.minimum) / (self.maximum - self.minimum)
 
-    def normalize_vals(self, timerow, min, max):
-        return (timerow - min) / (max - min)
+    def get_X_train(self, timerow, input_size, training_sets):
+        return np.array([timerow[i:i+input_size] for i in range(training_sets)])
 
-    def unwrap_prediction(self, prediction, minimum, maximum):
-        return prediction * (maximum - minimum) + minimum
+    def get_Y_train(self, timerow, input_size, training_sets):
+        return np.array([timerow[i + input_size] for i in range(training_sets)])
+
+    def get_last_X_for_pred(self, input_size):
+        vals = np.array(self.normalized_ma[len(xrp.normalized_ma) - input_size:])
+        return vals.reshape(input_size, 1)
+
+    def unwrap_prediction(self, prediction):
+        return (prediction * (self.maximum - self.minimum) + self.minimum)[0]
+
 
 
 start = track_start()
 
-csv = CsvReader()
-conn = csv.connect_db(csv.db_path)
-cur = conn.cursor()
-data = csv.read_db(cur, 'xrp')
-net = LogisticRegressionXRP()
+xrp = XrpDataHandler('xrp', 'close')
+net = VectorizedNet(input_size=50, trainig_sets=10000, num_iterations=2000, learning_rate=0.3)
 
-input_size = 50
-trainig_sets = 10000
-num_iterations = 2000
-learning_rate = 0.3
+xrp.normalized_ma = xrp.normalize_vals(xrp.get_ma(4))
 
-timerow = net.get_timerow(data, 'close')
-ma = net.get_ma(timerow, 3)
-minimum, maximum = min(ma), max(ma)
-normalized_ma = net.normalize_vals(ma, minimum, maximum)
+X = xrp.get_X_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
+Y = xrp.get_Y_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
 
-W = net.init_weights(input_size)
-b = 0
+net.optimize(X, Y)
 
-X = np.array([normalized_ma[i:i+input_size] for i in range(trainig_sets)])
-Y = np.array([normalized_ma[i+input_size] for i in range(trainig_sets)])
-
-W, b = net.optimize(W, b, X, Y, learning_rate, num_iterations)
-
-vals = np.array(normalized_ma[len(normalized_ma)-input_size:])
-vals = vals.reshape(input_size, 1)
-
-prediction = net.predict_monosign(W, vals.T, b)
-
-
-print net.unwrap_prediction(prediction, minimum, maximum)
+print xrp.unwrap_prediction(net.predict_monosign(xrp.get_last_X_for_pred(net.input_size)))
 
 
 track_end(start)

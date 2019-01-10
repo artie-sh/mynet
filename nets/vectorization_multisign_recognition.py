@@ -4,7 +4,7 @@ from my_network import VectorizedNet
 
 start = track_start()
 
-net = VectorizedNet()
+net = VectorizedNet(784, trainig_sets, num_iterations, learning_rate)
 net.load_data()
 
 W = np.array([net.init_weights(784) for i in range(10)])
@@ -14,7 +14,7 @@ Y = np.array([[net.normalize_val(net.training_vals[i], j) for i in range(trainig
 
 for i in range(10):
     print "running optimization on %s" % str(i)
-    W[i], b[i] = net.optimize(W[i], b[i], X, Y[i], learning_rate, num_iterations)
+    W[i], b[i] = net.optimize(W[i], b[i], X, Y[i])
 
 result = net.predict_multisign(W, [net.training_img[i] for i in range(10000, 10100)], b)
 fact = [net.training_vals[i] for i in range(10000, 10100)]

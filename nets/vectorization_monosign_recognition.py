@@ -4,19 +4,17 @@ from my_network import VectorizedNet
 
 start = track_start()
 
-net = VectorizedNet()
+net = VectorizedNet(784, trainig_sets, num_iterations, learning_rate)
 net.load_data()
 
-W = net.init_weights(784)
-b = 0
 X = np.array([net.training_img[i] for i in range(trainig_sets)])
 Y = np.array([net.normalize_val(net.training_vals[i], target_number) for i in range(trainig_sets)])
 
-W, b = net.optimize(W, b, X, Y, learning_rate, num_iterations)
+W, b = net.optimize(X, Y)
 
 true_rec, false_rec, true_unrec, false_unrec = 0, 0, 0, 0
 
-result = net.predict_monosign(W, [net.training_img[i] for i in range(400, 500)], b)
+result = net.predict_monosign([net.training_img[i] for i in range(400, 500)])
 fact = [net.training_vals[i] for i in range(400, 500)]
 
 for i in range(len(result)):

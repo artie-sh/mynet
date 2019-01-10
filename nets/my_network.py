@@ -96,6 +96,14 @@ class NonVectorizedNet(ParentNet):
 
 class VectorizedNet(ParentNet):
 
+    input_size, trainig_sets, num_iterations, learning_rate = None, None, None, None
+    W, b = None, None
+
+    def __init__(self, input_size, trainig_sets, num_iterations, learning_rate):
+        self.input_size, self.trainig_sets, self.num_iterations, self.learning_rate = input_size, trainig_sets, num_iterations, learning_rate
+        self.W = self.init_weights(input_size)
+        self.b = 0
+
     def init_weights(self, number):
         return np.array([0. for i in range(number)])
 
@@ -127,17 +135,26 @@ class VectorizedNet(ParentNet):
         db = self.calc_db(Y, A)
         return dw, db, cost
 
-    def optimize(self, W, b, X, Y, learning_rate, num_iterations):
-        for i in range(num_iterations):
+    def optimize(self, X, Y):
+        for i in range(self.num_iterations):
+            dw, db, cost = self.propagate(self.W, self.b, X, Y)
+            self.W -= dw * self.learning_rate
+            self.b -= db * self.learning_rate
+            if i % 10 == 0:
+                print "%s: cost %s" % (str(i), str(cost))
+        return self.W, self.b
+
+    def optimize(self, W, b, X, Y):
+        for i in range(self.num_iterations):
             dw, db, cost = self.propagate(W, b, X, Y)
-            W -= dw * learning_rate
-            b -= db * learning_rate
+            W -= dw * self.learning_rate
+            b -= db * self.learning_rate
             if i % 10 == 0:
                 print "%s: cost %s" % (str(i), str(cost))
         return W, b
 
-    def predict_monosign(self, W, X, b):
-        return self.calc_sigmoid(self.calc_z(W, X, b))
+    def predict_monosign(self, X):
+        return self.calc_sigmoid(self.calc_z(self.W, X, self.b))
 
     def predict_multisign(self, W, X, b):
         sigmoids = np.array([self.calc_sigmoid(self.calc_z(W[i], X, b[i])) for i in range(len(W))])
