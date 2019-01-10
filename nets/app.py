@@ -35,9 +35,7 @@ class Aplication:
                 periods = int(periods)
             except:
                 periods = 10
-            mav = self.dp.calc_moving_average(periods)
-            #mav.name = 'MA %s' % periods
-            mav = self.data_handler.get_ma(periods)
+            mav = go.Scatter(x=datax, y=self.data_handler.get_ma(periods), mode='lines')
             return {'data': [data_rows, mav]}
 
         self.app.run_server(debug = True)

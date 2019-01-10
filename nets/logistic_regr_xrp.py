@@ -22,11 +22,8 @@ class XrpDataHandler():
         return np.array([line[0] for line in self.data]), np.array([line[colnum] for line in self.data])
 
     def get_ma(self, periods):
-        datax = [line[0] for line in self.data[:periods - 1]]
-        datay = [None] * (periods - 1)
-        self.ma = np.array([self.avg(self.y_axis[i:i + periods]) for i in range(len(self.y_axis) - periods)])
-
-        return self.ma
+        result = np.concatenate((np.array([None] * (periods - 1)), np.array([self.avg(self.y_axis[i:i + periods]) for i in range(len(self.y_axis) - periods)])))
+        return result
 
     def normalize_vals(self, timerow):
         self.minimum, self.maximum = min(timerow), max(timerow)
@@ -60,6 +57,5 @@ class XrpDataHandler():
 # net.optimize(X, Y)
 #
 # print xrp.unwrap_prediction(net.predict_monosign(xrp.get_last_X_for_pred(net.input_size)))
-#
 #
 # track_end(start)
