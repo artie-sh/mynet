@@ -144,7 +144,7 @@ class VectorizedNet(ParentNet):
                 print "%s: cost %s" % (str(i), str(cost))
         return self.W, self.b
 
-    def optimize(self, W, b, X, Y):
+    def optimize_multisign(self, W, b, X, Y):
         for i in range(self.num_iterations):
             dw, db, cost = self.propagate(W, b, X, Y)
             W -= dw * self.learning_rate

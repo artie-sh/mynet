@@ -4,14 +4,14 @@ from my_network import VectorizedNet
 
 class XrpDataHandler():
 
-    data, timerow, ma, normalized_ma, minimum, maximum  = None, None, None, None, None, None
+    data, x_axis, y_axis, ma, normalized_ma, minimum, maximum  = None, None, None, None, None, None, None
 
     def __init__(self, tablename, column):
         csv = CsvReader()
         conn = csv.connect_db(csv.db_path)
         cur = conn.cursor()
         self.data = csv.read_db(cur, tablename)
-        self.timerow = self.get_timerow(column)
+        self.x_axis, self.y_axis = self.get_timerow(column)
 
     def avg(self, timerow):
         return sum(timerow) / max(len(timerow), 1)
@@ -19,10 +19,13 @@ class XrpDataHandler():
     def get_timerow(self, rowname='close'):
         rows = {'open': 1, 'high': 2, 'low': 3, 'close': 4}
         colnum = rows[rowname]
-        return np.array([line[colnum] for line in self.data])
+        return np.array([line[0] for line in self.data]), np.array([line[colnum] for line in self.data])
 
     def get_ma(self, periods):
-        self.ma = np.array([self.avg(self.timerow[i:i + periods]) for i in range(len(self.timerow) - periods)])
+        datax = [line[0] for line in self.data[:periods - 1]]
+        datay = [None] * (periods - 1)
+        self.ma = np.array([self.avg(self.y_axis[i:i + periods]) for i in range(len(self.y_axis) - periods)])
+
         return self.ma
 
     def normalize_vals(self, timerow):
@@ -44,19 +47,19 @@ class XrpDataHandler():
 
 
 
-start = track_start()
-
-xrp = XrpDataHandler('xrp', 'close')
-net = VectorizedNet(input_size=50, trainig_sets=10000, num_iterations=2000, learning_rate=0.3)
-
-xrp.normalized_ma = xrp.normalize_vals(xrp.get_ma(4))
-
-X = xrp.get_X_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
-Y = xrp.get_Y_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
-
-net.optimize(X, Y)
-
-print xrp.unwrap_prediction(net.predict_monosign(xrp.get_last_X_for_pred(net.input_size)))
-
-
-track_end(start)
+# start = track_start()
+#
+# xrp = XrpDataHandler('xrp', 'close')
+# net = VectorizedNet(input_size=50, trainig_sets=10000, num_iterations=2000, learning_rate=0.3)
+#
+# xrp.normalized_ma = xrp.normalize_vals(xrp.get_ma(4))
+#
+# X = xrp.get_X_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
+# Y = xrp.get_Y_train(xrp.normalized_ma, net.input_size, net.trainig_sets)
+#
+# net.optimize(X, Y)
+#
+# print xrp.unwrap_prediction(net.predict_monosign(xrp.get_last_X_for_pred(net.input_size)))
+#
+#
+# track_end(start)
